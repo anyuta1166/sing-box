@@ -34,7 +34,7 @@ type URLTest struct {
 	tags                         []string
 	link                         string
 	interval                     time.Duration
-	tolerance                    uint16
+	sticky                       bool
 	idleTimeout                  time.Duration
 	group                        *URLTestGroup
 	interruptExternalConnections bool
@@ -54,7 +54,7 @@ func NewURLTest(ctx context.Context, router adapter.Router, logger log.ContextLo
 		tags:                         options.Outbounds,
 		link:                         options.URL,
 		interval:                     time.Duration(options.Interval),
-		tolerance:                    options.Tolerance,
+		sticky:                       options.Sticky,
 		idleTimeout:                  time.Duration(options.IdleTimeout),
 		interruptExternalConnections: options.InterruptExistConnections,
 	}
@@ -80,7 +80,7 @@ func (s *URLTest) Start() error {
 		outbounds,
 		s.link,
 		s.interval,
-		s.tolerance,
+		s.sticky,
 		s.idleTimeout,
 		s.interruptExternalConnections,
 	)
@@ -189,7 +189,7 @@ type URLTestGroup struct {
 	outbounds                    []adapter.Outbound
 	link                         string
 	interval                     time.Duration
-	tolerance                    uint16
+	sticky                       bool
 	idleTimeout                  time.Duration
 	history                      *urltest.HistoryStorage
 	checking                     atomic.Bool
@@ -213,15 +213,12 @@ func NewURLTestGroup(
 	outbounds []adapter.Outbound,
 	link string,
 	interval time.Duration,
-	tolerance uint16,
+	sticky bool,
 	idleTimeout time.Duration,
 	interruptExternalConnections bool,
 ) (*URLTestGroup, error) {
 	if interval == 0 {
 		interval = C.DefaultURLTestInterval
-	}
-	if tolerance == 0 {
-		tolerance = 50
 	}
 	if idleTimeout == 0 {
 		idleTimeout = C.DefaultURLTestIdleTimeout
@@ -243,7 +240,7 @@ func NewURLTestGroup(
 		outbounds:                    outbounds,
 		link:                         link,
 		interval:                     interval,
-		tolerance:                    tolerance,
+		sticky:                       sticky,
 		idleTimeout:                  idleTimeout,
 		history:                      history,
 		close:                        make(chan struct{}),
