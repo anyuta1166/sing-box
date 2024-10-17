@@ -286,6 +286,7 @@ func (g *URLTestGroup) Close() error {
 }
 
 func (g *URLTestGroup) Select(network string) (adapter.Outbound, bool) {
+	var updated bool
 	var minDelay uint16
 	var minOutbound adapter.Outbound
 	switch network {
@@ -312,9 +313,10 @@ func (g *URLTestGroup) Select(network string) (adapter.Outbound, bool) {
 		if history == nil {
 			continue
 		}
-		if minDelay == 0 || minDelay > history.Delay+g.tolerance {
+		if !updated {
 			minDelay = history.Delay
 			minOutbound = detour
+			updated = true
 		}
 	}
 	if minOutbound == nil {
