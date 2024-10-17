@@ -310,10 +310,17 @@ func (g *URLTestGroup) Select(network string) (adapter.Outbound, bool) {
 		if history == nil {
 			continue
 		}
-		if !updated {
-			minDelay = history.Delay
-			minOutbound = detour
-			updated = true
+		if g.sticky {
+			if minDelay == 0 {
+				minDelay = history.Delay
+				minOutbound = detour
+			}
+		} else {
+			if !updated {
+				minDelay = history.Delay
+				minOutbound = detour
+				updated = true
+			}
 		}
 	}
 	if minOutbound == nil {
